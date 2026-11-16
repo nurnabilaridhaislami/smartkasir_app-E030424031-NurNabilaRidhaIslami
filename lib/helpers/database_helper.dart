@@ -41,15 +41,6 @@ class DatabaseHelper {
       final path = join(dbPath, filePath);
       return await openDatabase(
         path,
-      version: 1,
-        onCreate: _createDB,
-        onUpgrade: _onUpgradeDB,
-      );
-    } else {
-      final dbPath = await getDatabasesPath();
-      final path = join(dbPath, filePath);
-      return await openDatabase(
-        path,
         version: 2,
         onCreate: _createDB,
         onUpgrade: _onUpgradeDB,
