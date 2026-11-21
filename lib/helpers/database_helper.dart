@@ -2,7 +2,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 // Mengimpor model data Produk dan Karyawan
@@ -26,9 +25,10 @@ class DatabaseHelper {
 
   // Inisialisasi berkas basis data SQLite
   Future<Database> _initDB(String filePath) async {
+    Database db;
     if (kIsWeb) {
       databaseFactory = databaseFactoryFfiWeb;
-      return await databaseFactory.openDatabase(
+      db = await databaseFactory.openDatabase(
         filePath,
         options: OpenDatabaseOptions(
           version: 2,
@@ -39,13 +39,37 @@ class DatabaseHelper {
     } else {
       final dbPath = await getDatabasesPath();
       final path = join(dbPath, filePath);
-      return await openDatabase(
+      db = await openDatabase(
         path,
         version: 2,
         onCreate: _createDB,
         onUpgrade: _onUpgradeDB,
       );
     }
+
+    // Auto-Recovery: Jika tabel produk kosong, pulihkan data bawaan secara otomatis
+    await _seedProdukJikaKosong(db);
+
+    return db;
+  }
+
+  // Helper pemulihan data produk otomatis jika tabel masih kosong
+  Future<void> _seedProdukJikaKosong(Database db) async {
+    try {
+      final count = Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM produk'),
+          ) ??
+          0;
+      if (count == 0) {
+        for (final produk in produkAwalSQLite) {
+          await db.insert(
+            'produk',
+            produk.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+      }
+    } catch (_) {}
   }
 
   // DDL: Pembuatan Tabel Basis Data (Versi Baru)
@@ -76,7 +100,16 @@ class DatabaseHelper {
       )
     ''');
 
-    // 3. Memasukkan data staf awal otomatis (Seeding Data Awal Toko)
+    // 3. Seeding Data Awal Produk (Modul M11)
+    for (final produk in produkAwalSQLite) {
+      await db.insert(
+        'produk',
+        produk.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    // 4. Memasukkan data staf awal otomatis (Seeding Data Awal Toko M12)
     await db.rawInsert('''
       INSERT INTO karyawan (nama_karyawan, pin, peran)
       VALUES ('Ahmad Kasir', '1234', 'Kasir')
@@ -149,9 +182,25 @@ class DatabaseHelper {
   // METODE CRUD: TABEL PRODUK (DARI MINGGU 11)
   // ==========================================
 
+  // Pemulihan data produk bawaan SmartKasir
+  Future<void> restoreDataProduk() async {
+    final db = await instance.database;
+    for (final produk in produkAwalSQLite) {
+      await db.insert(
+        'produk',
+        produk.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+  }
+
   Future<int> insertProduk(Produk produk) async {
     final db = await instance.database;
-    return await db.insert('produk', produk.toMap());
+    return await db.insert(
+      'produk',
+      produk.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<List<Produk>> getAllProduk() async {

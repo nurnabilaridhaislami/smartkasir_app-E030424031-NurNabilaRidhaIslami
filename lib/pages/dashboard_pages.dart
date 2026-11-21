@@ -539,6 +539,24 @@ class _DashboardPageState extends State<DashboardPage> {
                             fontSize: 14,
                           ),
                         ),
+                        if (_keywordPencarian.isEmpty) ...[
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1E3A8A),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () async {
+                              await DatabaseHelper.instance.restoreDataProduk();
+                              _muatDataProduk();
+                            },
+                            icon: const Icon(Icons.refresh, size: 18),
+                            label: const Text('Pulihkan Data Produk Bawaan'),
+                          ),
+                        ],
                       ],
                     ),
                   );
