@@ -123,10 +123,18 @@ void main() {
       final updatedList = await db.query('pelanggan', where: 'id = ?', whereArgs: [id]);
       expect(updatedList.first['nama_pelanggan'], 'Pelanggan Terupdate');
 
+      // Tantangan 3: Counter Jumlah Pelanggan
+      final countResult = await db.rawQuery('SELECT COUNT(*) FROM pelanggan');
+      final totalAwal = Sqflite.firstIntValue(countResult) ?? 0;
+      expect(totalAwal, 1);
+
       // Delete
       await db.delete('pelanggan', where: 'id = ?', whereArgs: [id]);
       final emptyList = await db.query('pelanggan');
       expect(emptyList.isEmpty, isTrue);
+
+      final totalAkhir = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM pelanggan')) ?? 0;
+      expect(totalAkhir, 0);
 
       await db.close();
     });

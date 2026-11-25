@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Mengimpor database helper untuk menghitung jumlah pelanggan
+import '../helpers/database_helper.dart';
+
 // Mengimpor halaman kelola karyawan dan kelola pelanggan untuk jalan pintas menu
 import 'kelola_karyawan_page.dart';
 import 'kelola_pelanggan_page.dart';
@@ -28,6 +31,9 @@ class _ProfilTokoPageState extends State<ProfilTokoPage> {
   // Nama kasir aktif yang sedang bertugas
   String _activeCashierName = 'Belum Ditentukan';
 
+  // Jumlah pelanggan terdaftar (Tantangan 3 Modul 13)
+  int _totalPelanggan = 0;
+
   @override
   void initState() {
     super.initState();
@@ -44,10 +50,17 @@ class _ProfilTokoPageState extends State<ProfilTokoPage> {
     super.dispose();
   }
 
-  // --- MEMBACA PENGATURAN TOKO DARI SHAREDPREFERENCES ---
+  // --- MEMBACA PENGATURAN TOKO DARI SHAREDPREFERENCES & DATABASE ---
   Future<void> _muatProfilToko() async {
     final prefs = await SharedPreferences.getInstance();
+    int totalPelanggan = 0;
+    try {
+      totalPelanggan = await DatabaseHelper.instance.countPelanggan();
+    } catch (_) {}
+
+    if (!mounted) return;
     setState(() {
+      _totalPelanggan = totalPelanggan;
       _namaTokoController.text = prefs.getString('nama_toko') ?? 'SmartKasir Poliban';
       _alamatController.text = prefs.getString('alamat_toko') ?? 'Jl. Brigjend H. Hasan Basry, Banjarmasin';
       _noWaController.text = prefs.getString('no_wa') ?? '081234567890';
@@ -154,13 +167,14 @@ class _ProfilTokoPageState extends State<ProfilTokoPage> {
                   child: Icon(Icons.people_alt, color: Colors.teal.shade700),
                 ),
                 title: const Text('Data Pelanggan & Lokasi GPS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle: const Text('Kelola kontak pelanggan & rute Google Maps', style: TextStyle(fontSize: 12)),
+                subtitle: Text('$_totalPelanggan Member Pelanggan Terdaftar', style: const TextStyle(fontSize: 12)),
                 trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const KelolaPelangganPage()),
                   );
+                  _muatProfilToko();
                 },
               ),
             ),
