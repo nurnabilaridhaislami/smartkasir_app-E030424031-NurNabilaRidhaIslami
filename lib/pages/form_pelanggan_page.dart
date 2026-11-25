@@ -133,11 +133,17 @@ class _FormPelangganPageState extends State<FormPelangganPage> {
     setState(() => _sedangMenyimpan = true);
 
     try {
+      // Normalisasi format nomor WhatsApp: jika diawali '08', otomatis ubah ke '628'
+      String nomorWaBersih = _nomorWaController.text.trim();
+      if (nomorWaBersih.startsWith('08')) {
+        nomorWaBersih = '628${nomorWaBersih.substring(2)}';
+      }
+
       final pelangganData = Pelanggan(
         id: widget.pelanggan?.id,
         kodePelanggan: _kodeController.text.trim(),
         namaPelanggan: _namaController.text.trim(),
-        nomorWa: _nomorWaController.text.trim(),
+        nomorWa: nomorWaBersih,
         alamat: _alamatController.text.trim(),
         latitude: _latitude,
         longitude: _longitude,

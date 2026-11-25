@@ -50,6 +50,20 @@ void main() {
       expect(pelangganTanpaGps.hasLocation, isFalse);
       expect(pelangganTanpaGps.coordinateText, 'Belum Ditandai');
     });
+
+    test('3. Tantangan 1: Normalisasi otomatis nomor WhatsApp 08 ke 628', () {
+      String normalisasiNomorWa(String nomor) {
+        final bersih = nomor.trim();
+        if (bersih.startsWith('08')) {
+          return '628${bersih.substring(2)}';
+        }
+        return bersih;
+      }
+
+      expect(normalisasiNomorWa('081234567890'), '6281234567890');
+      expect(normalisasiNomorWa('085712345678'), '6285712345678');
+      expect(normalisasiNomorWa('6281234567890'), '6281234567890');
+    });
   });
 
   group('UJI MODUL 13: DATABASE HELPER TABEL PELANGGAN (Tahap 4.2)', () {
