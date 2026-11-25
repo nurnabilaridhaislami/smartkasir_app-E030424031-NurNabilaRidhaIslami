@@ -2,8 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Mengimpor halaman kelola karyawan untuk jalan pintas menu
+// Mengimpor halaman kelola karyawan dan kelola pelanggan untuk jalan pintas menu
 import 'kelola_karyawan_page.dart';
+import 'kelola_pelanggan_page.dart';
 
 // Halaman Pengaturan Profil Toko & Footer Struk Kasir
 class ProfilTokoPage extends StatefulWidget {
@@ -133,6 +134,34 @@ class _ProfilTokoPageState extends State<ProfilTokoPage> {
                     label: const Text('Kelola'),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // MENU AKSES KELOLA PELANGGAN (MODUL 13 CRM & LBS)
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2)),
+                ],
+              ),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.teal.shade50,
+                  child: Icon(Icons.people_alt, color: Colors.teal.shade700),
+                ),
+                title: const Text('Data Pelanggan & Lokasi GPS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: const Text('Kelola kontak pelanggan & rute Google Maps', style: TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const KelolaPelangganPage()),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 20),
