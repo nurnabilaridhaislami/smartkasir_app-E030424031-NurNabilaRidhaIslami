@@ -53,21 +53,25 @@ class _ProfilTokoPageState extends State<ProfilTokoPage> {
   // --- MEMBACA PENGATURAN TOKO DARI SHAREDPREFERENCES & DATABASE ---
   Future<void> _muatProfilToko() async {
     final prefs = await SharedPreferences.getInstance();
-    int totalPelanggan = 0;
-    try {
-      totalPelanggan = await DatabaseHelper.instance.countPelanggan();
-    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _namaTokoController.text = prefs.getString('nama_toko') ?? 'SmartKasir Poliban';
+        _alamatController.text = prefs.getString('alamat_toko') ?? 'Jl. Brigjend H. Hasan Basry, Banjarmasin';
+        _noWaController.text = prefs.getString('no_wa') ?? '081234567890';
+        _igTokoController.text = prefs.getString('ig_toko') ?? '@smartkasir_poliban';
+        _footerController.text = prefs.getString('footer_struk') ?? 'Terima Kasih Atas Kunjungan Anda! Barang yang sudah dibeli tidak dapat ditukar.';
+        _activeCashierName = prefs.getString('active_cashier_name') ?? 'Belum Ditentukan';
+      });
+    }
 
-    if (!mounted) return;
-    setState(() {
-      _totalPelanggan = totalPelanggan;
-      _namaTokoController.text = prefs.getString('nama_toko') ?? 'SmartKasir Poliban';
-      _alamatController.text = prefs.getString('alamat_toko') ?? 'Jl. Brigjend H. Hasan Basry, Banjarmasin';
-      _noWaController.text = prefs.getString('no_wa') ?? '081234567890';
-      _igTokoController.text = prefs.getString('ig_toko') ?? '@smartkasir_poliban';
-      _footerController.text = prefs.getString('footer_struk') ?? 'Terima Kasih Atas Kunjungan Anda! Barang yang sudah dibeli tidak dapat ditukar.';
-      _activeCashierName = prefs.getString('active_cashier_name') ?? 'Belum Ditentukan';
-    });
+    try {
+      final total = await DatabaseHelper.instance.countPelanggan();
+      if (mounted) {
+        setState(() {
+          _totalPelanggan = total;
+        });
+      }
+    } catch (_) {}
   }
 
   // --- MENYIMPAN PENGATURAN TOKO KE SHAREDPREFERENCES ---
@@ -161,21 +165,25 @@ class _ProfilTokoPageState extends State<ProfilTokoPage> {
                   BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2)),
                 ],
               ),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.teal.shade50,
-                  child: Icon(Icons.people_alt, color: Colors.teal.shade700),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(14),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.teal.shade50,
+                    child: Icon(Icons.people_alt, color: Colors.teal.shade700),
+                  ),
+                  title: const Text('Data Pelanggan & Lokasi GPS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: Text('$_totalPelanggan Member Pelanggan Terdaftar', style: const TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const KelolaPelangganPage()),
+                    );
+                    _muatProfilToko();
+                  },
                 ),
-                title: const Text('Data Pelanggan & Lokasi GPS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle: Text('$_totalPelanggan Member Pelanggan Terdaftar', style: const TextStyle(fontSize: 12)),
-                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const KelolaPelangganPage()),
-                  );
-                  _muatProfilToko();
-                },
               ),
             ),
             const SizedBox(height: 20),
