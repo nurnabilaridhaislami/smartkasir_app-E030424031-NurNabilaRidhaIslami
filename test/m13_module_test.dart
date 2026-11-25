@@ -64,6 +64,15 @@ void main() {
       expect(normalisasiNomorWa('085712345678'), '6285712345678');
       expect(normalisasiNomorWa('6281234567890'), '6281234567890');
     });
+
+    test('4. Tantangan 2: URL rute Google Maps menyertakan travelmode=two_wheeler', () {
+      const lat = -3.298610;
+      const lng = 114.588230;
+      const url = 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=two_wheeler';
+
+      expect(url, contains('travelmode=two_wheeler'));
+      expect(url, contains('destination=-3.29861,114.58823'));
+    });
   });
 
   group('UJI MODUL 13: DATABASE HELPER TABEL PELANGGAN (Tahap 4.2)', () {

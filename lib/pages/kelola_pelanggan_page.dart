@@ -54,8 +54,9 @@ class _KelolaPelangganPageState extends State<KelolaPelangganPage> {
   }
 
   // Membuka navigasi rute ke lokasi pelanggan di Google Maps via URL Launcher
+  // Menggunakan mode rute sepeda motor (two_wheeler) untuk kemudahan operasional kurir toko
   Future<void> _bukaRuteGoogleMaps(double latitude, double longitude, String namaPelanggan) async {
-    final urlString = 'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude';
+    final urlString = 'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude&travelmode=two_wheeler';
     final uri = Uri.parse(urlString);
 
     try {
